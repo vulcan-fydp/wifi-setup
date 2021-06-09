@@ -3,6 +3,9 @@
 use rocket::request::Form;
 use rocket::response::{status, NamedFile, Redirect};
 use std::path::{Path, PathBuf};
+use std::fs::OpenOptions;
+use std::io::prelude::*;
+use std::process::Command;
 
 #[macro_use]
 extern crate rocket;
@@ -10,6 +13,20 @@ extern crate rocket;
 #[get("/")]
 fn index() -> Option<NamedFile> {
     NamedFile::open(Path::new("static/main.html")).ok()
+}
+
+fn connect_to_network(ssid: &str, pw: &str) -> std::io::Result<()> {
+    let config = Command::new("wpa_passphrase").arg(ssid).arg(pw).output()?;
+    let mut conf_file = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .open("/etc/wpa_supplicant/wpa_supplicant-wlan0.conf")?;
+    conf_file.write_all(&config.stdout)?;
+    Command::new("systemctl")
+        .arg("restart")
+        .arg("wpa_supplicant@wlan0.service")
+        .status()?;
+    Ok(())
 }
 
 #[derive(FromForm)]
@@ -20,7 +37,7 @@ struct WifiConfig {
 
 #[post("/connect", data = "<form>")]
 fn connect(form: Form<WifiConfig>) -> status::Accepted<String> {
-    println!("ssid: {} pw: {}", form.ssid, form.pw);
+    let _ = connect_to_network(&form.ssid, &form.pw);
     status::Accepted(Some("Connecting".to_string()))
 }
 
