@@ -1,13 +1,23 @@
 <!DOCTYPE html>
 <html>
+    <head>
+        <link rel="stylesheet" href="static/style.css">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+    </head>
     <body>
-        <h1>Add a Wi-Fi Network</h1>
-        <form action="/connect", method="post">
-            <label for="ssid">SSID:</label>
-            <input type="text" id="ssid", name="ssid">
-            <label for="pw">Password:</label>
-            <input type="password" id="pw", name="pw">
-            <input type="submit" value="Connect">
-        </form>
+        <h1>Connect to a Wi-Fi Network</h1>
+        <div id="connect">
+            <form action="/connect", method="post">
+                <label for="ssid">SSID:</label>
+                <br>
+                <input type="text" id="ssid", name="ssid">
+                <br>
+                <label for="pw">Password:</label>
+                <br>
+                <input type="password" id="pw", name="pw">
+                <br>
+                <input type="submit" value="Connect">
+            </form>
+        </div>
     </body>
 </html>

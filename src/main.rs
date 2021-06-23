@@ -2,9 +2,10 @@
 
 use rocket::request::Form;
 use rocket::response::{status, NamedFile, Redirect};
-use std::path::{Path, PathBuf};
+use rocket_contrib::serve::StaticFiles;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
+use std::path::{Path, PathBuf};
 use std::process::Command;
 
 #[macro_use]
@@ -22,9 +23,10 @@ fn connect_to_network(ssid: &str, pw: &str) -> std::io::Result<()> {
         .append(true)
         .open("/etc/wpa_supplicant/wpa_supplicant-wlan0.conf")?;
     conf_file.write_all(&config.stdout)?;
-    Command::new("systemctl")
-        .arg("restart")
-        .arg("wpa_supplicant@wlan0.service")
+    Command::new("wpa_cli")
+        .arg("-i")
+        .arg("wlan0")
+        .arg("reconfigure")
         .status()?;
     Ok(())
 }
@@ -49,5 +51,6 @@ fn redirect(path: PathBuf) -> Redirect {
 fn main() {
     rocket::ignite()
         .mount("/", routes![index, connect, redirect])
+        .mount("/static", StaticFiles::from("/static"))
         .launch();
 }
