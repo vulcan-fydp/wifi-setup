@@ -11,6 +11,7 @@ label {
 
 .wide {
     width:99%;
+    height:50px;
     padding:0px;
     font-size:5vw;
 }
