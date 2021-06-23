@@ -1,15 +1,28 @@
 #![feature(proc_macro_hygiene, decl_macro)]
 
+use controller_emulator::controller::ns_procon;
+use controller_emulator::controller::Controller;
+use controller_emulator::usb_gadget;
+use controller_emulator::usb_gadget::ns_procon::ns_procons;
+
 use rocket::request::Form;
 use rocket::response::{status, NamedFile, Redirect};
+use rocket::State;
 use rocket_contrib::serve::StaticFiles;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
 use std::path::Path;
 use std::process::Command;
+use std::sync::Mutex;
+use std::thread::sleep;
+use std::time::Duration;
 
 #[macro_use]
 extern crate rocket;
+
+struct Demo {
+    controller: Mutex<ns_procon::NsProcon>,
+}
 
 #[get("/")]
 fn index() -> Option<NamedFile> {
@@ -22,12 +35,20 @@ fn demo() -> Option<NamedFile> {
 }
 
 #[post("/switch_connect")]
-fn switch_connect() -> status::Accepted<String> {
+fn switch_connect(state: State<Demo>) -> status::Accepted<String> {
+    let mut controller = state.controller.lock().unwrap();
+    controller
+        .start_comms()
+        .expect("Couldn't start communicating");
     status::Accepted(Some("Connecting".to_string()))
 }
 
 #[post("/press_a")]
-fn press_a() -> status::Accepted<String> {
+fn press_a(state: State<Demo>) -> status::Accepted<String> {
+    let mut controller = state.controller.lock().unwrap();
+    controller.press(ns_procon::inputs::BUTTON_A);
+    sleep(Duration::from_millis(100));
+    controller.release(ns_procon::inputs::BUTTON_A);
     status::Accepted(Some("Pressing A".to_string()))
 }
 
@@ -64,8 +85,20 @@ fn redirect() -> Redirect {
 }
 
 fn main() {
+    let procons = ns_procons();
+    procons
+        .create_config("procons")
+        .expect("Could not create configuration");
+    usb_gadget::activate("procons").expect("Could not activate");
+    sleep(Duration::from_secs(1));
+
+    let procon_1 = ns_procon::NsProcon::create("/dev/hidg0");
+
     rocket::ignite()
         .register(catchers![redirect])
+        .manage(Demo {
+            controller: Mutex::new(procon_1),
+        })
         .mount("/", routes![index, demo, switch_connect, press_a, connect])
         .mount(
             "/static",
