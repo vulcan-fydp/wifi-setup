@@ -1,4 +1,5 @@
 #![feature(proc_macro_hygiene, decl_macro)]
+#![feature(bool_to_option)]
 
 use rocket::request::Form;
 use rocket::response::{status, NamedFile, Redirect};
@@ -19,6 +20,14 @@ fn index() -> Option<NamedFile> {
 
 fn connect_to_network(ssid: &str, pw: &str) -> std::io::Result<()> {
     let config = Command::new("wpa_passphrase").arg(ssid).arg(pw).output()?;
+    config
+        .status
+        .success()
+        .then_some(0)
+        .ok_or(std::io::Error::new(
+            std::io::ErrorKind::Other,
+            "wpa_passphrase exited with error",
+        ))?;
     let mut conf_file = OpenOptions::new()
         .write(true)
         .append(true)
