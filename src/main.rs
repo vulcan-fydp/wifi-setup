@@ -2,6 +2,7 @@
 
 use rocket::request::Form;
 use rocket::response::{status, NamedFile, Redirect};
+use rocket::Catcher;
 use rocket_contrib::serve::StaticFiles;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
@@ -43,14 +44,18 @@ fn connect(form: Form<WifiConfig>) -> status::Accepted<String> {
     status::Accepted(Some("Connecting".to_string()))
 }
 
-#[get("/<path..>")]
-fn redirect(path: PathBuf) -> Redirect {
+#[catch(404)]
+fn redirect() -> Redirect {
     Redirect::found(uri!(index))
 }
 
 fn main() {
     rocket::ignite()
-        .mount("/", routes![index, connect, redirect])
-        .mount("/static", StaticFiles::from("/static"))
+        .register(catchers![redirect])
+        .mount("/", routes![index, connect])
+        .mount(
+            "/static",
+            StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/static")),
+        )
         .launch();
 }

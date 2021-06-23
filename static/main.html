@@ -2,21 +2,21 @@
 <html>
     <head>
         <link rel="stylesheet" href="static/style.css">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0"> 
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
     <body>
         <h1>Connect to a Wi-Fi Network</h1>
         <div id="connect">
             <form action="/connect", method="post">
                 <label for="ssid">SSID:</label>
+                <input class="wide" type="text" id="ssid", name="ssid">
                 <br>
-                <input type="text" id="ssid", name="ssid">
                 <br>
                 <label for="pw">Password:</label>
+                <input class="wide" type="password" id="pw", name="pw">
                 <br>
-                <input type="password" id="pw", name="pw">
                 <br>
-                <input type="submit" value="Connect">
+                <input class="wide"  type="submit" value="Connect">
             </form>
         </div>
     </body>

@@ -3,10 +3,14 @@ div {
 }
 
 label {
+    display:block;
     width:100%;
+    font-size:7vw;
     text-align:center;
 }
 
-input {
-    width:100%;
+.wide {
+    width:99%;
+    padding:0px;
+    font-size:5vw;
 }
