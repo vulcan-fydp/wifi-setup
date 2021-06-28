@@ -36,6 +36,7 @@ fn demo() -> Option<NamedFile> {
 
 #[post("/switch_connect")]
 fn switch_connect(state: State<Demo>) -> status::Accepted<String> {
+    let _ = usb_gadget::reset("procons");
     let mut controller = state.controller.lock().unwrap();
     controller
         .start_comms()
@@ -89,8 +90,6 @@ fn main() {
     procons
         .create_config("procons")
         .expect("Could not create configuration");
-    usb_gadget::activate("procons").expect("Could not activate");
-    sleep(Duration::from_secs(1));
 
     let procon_1 = ns_procon::NsProcon::create("/dev/hidg0");
 
