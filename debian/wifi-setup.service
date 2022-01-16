@@ -1,0 +1,13 @@
+[Unit]
+AssertPathExists=/usr/bin/wifi-setup
+
+[Service]
+WorkingDirectory=~
+ExecStart=/usr/bin/wifi-setup
+Restart=always
+PrivateTmp=true
+NoNewPrivileges=true
+
+[Install]
+Alias=wifi-setup
+WantedBy=default.target

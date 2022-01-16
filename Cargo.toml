@@ -5,6 +5,15 @@ authors = ["Callum Moseley <callum.moseley1@gmail.com>"]
 edition = "2018"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+[package.metadata.deb]
+depends = "$auto, systemd"
+extended-description = "Captive portal wifi configuration"
+section = "admin"
+priority = "optional"
+assets = [
+    ["target/release/wifi-setup", "usr/bin/wifi-setup", "755"],
+    ["debian/wifi-setup.service", "/lib/systemd/system/wifi-setup.service", "644"], 
+]
 
 [dependencies]
 rocket = "0.4.10"
