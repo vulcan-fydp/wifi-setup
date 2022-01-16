@@ -3,11 +3,10 @@
 
 use rocket::request::Form;
 use rocket::response::{status, NamedFile, Redirect};
-use rocket::Catcher;
 use rocket_contrib::serve::StaticFiles;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-use std::path::{Path, PathBuf};
+use std::path::Path;
 use std::process::Command;
 
 #[macro_use]

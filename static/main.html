@@ -1,6 +1,9 @@
 <!DOCTYPE html>
 <html>
     <head>
+        <link rel="preconnect" href="https://fonts.googleapis.com">
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+        <link href="https://fonts.googleapis.com/css2?family=Montserrat&display=swap" rel="stylesheet"> 
         <link rel="stylesheet" href="static/style.css">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
     </head>
@@ -8,15 +11,18 @@
         <h1>Connect to a Wi-Fi Network</h1>
         <div id="connect">
             <form action="/connect", method="post">
-                <label for="ssid">SSID:</label>
-                <input class="wide" type="text" id="ssid", name="ssid">
+                <!-- <label for="ssid">SSID:</label> -->
+                <input class="text" placeholder="SSID" type="text" id="ssid", name="ssid">
                 <br>
                 <br>
-                <label for="pw">Password:</label>
-                <input class="wide" type="password" id="pw", name="pw">
+                <!-- <br>
+                     <label for="pw">Password:</label> -->
+                <input class="text" placeholder="Password" type="password" id="pw", name="pw">
                 <br>
                 <br>
-                <input class="wide"  type="submit" value="Connect">
+                <!-- <br>
+                     <br> -->
+                <input class="button"  type="submit" value="Connect">
             </form>
         </div>
     </body>
