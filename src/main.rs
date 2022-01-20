@@ -25,7 +25,7 @@ struct Ssids {
 #[get("/scan_ssids")]
 fn scan_ssids() -> Json<Ssids> {
     let scan_out = Command::new("iwlist").arg("wlan0").arg("scan").output();
-    let ssids = vec!["hi".to_owned()];
+    let ssids = vec!["hi".to_string(), "hi2".to_string(), "hi3".to_string()];
     Json(Ssids { ssids })
 }
 
@@ -107,7 +107,7 @@ fn main() {
     rocket::ignite()
         .attach(Template::fairing())
         .register(catchers![redirect])
-        .mount("/", routes![ssids, ssid, connect, is_connected])
+        .mount("/", routes![ssids, ssid, connect, is_connected, scan_ssids])
         .mount("/static", StaticFiles::from(static_dir))
         .launch();
 }

@@ -2,15 +2,14 @@ function querySSIDs() {
     $.ajax({
         url: 'scan_ssids',
         success: function(data) {
-            $('.ssid-list').innerHTML = '';
+            $('.ssid-list').html('');
             data['ssids'].forEach(ssid =>
-                console.log(ssid);
-                // $('.ssid-list').append('<a href="/ssid/' + ssid + '">' + ssid + '<=a>')
+                $('.ssid-list').append('<a href="/ssid/' + ssid + '">' + ssid + '</a>')
             );
         }
     });
 }
 
 $(document).ready(function() {
-    setInterval(queryConnected, 5000);
+    setInterval(querySSIDs, 5000);
 });
