@@ -11,8 +11,11 @@ extended-description = "Captive portal wifi configuration"
 section = "admin"
 priority = "optional"
 assets = [
-    ["target/release/wifi-setup", "usr/bin/wifi-setup", "755"],
+    ["target/release/wifi-setup", "/usr/bin/wifi-setup", "755"],
     ["debian/wifi-setup.service", "/lib/systemd/system/wifi-setup.service", "644"], 
+    ["static/*", "/usr/share/wifi-setup/static/", "644"], 
+    ["templates/*", "/usr/share/wifi-setup/templates/", "644"], 
+    ["Rocket.toml", "/usr/share/wifi-setup/", "644"], 
 ]
 
 [dependencies]
@@ -21,4 +24,4 @@ rocket = "0.4.10"
 [dependencies.rocket_contrib]
 version = "0.4.10"
 default-features = false
-features = ["serve"]
+features = ["serve", "handlebars_templates"]

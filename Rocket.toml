@@ -1,0 +1,9 @@
+[development]
+address = "localhost"
+port = 8000
+template_dir = "templates/"
+
+[production]
+address = "192.168.4.1"
+port = 2050
+template_dir = "templates/"

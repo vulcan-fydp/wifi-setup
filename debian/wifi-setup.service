@@ -1,8 +1,10 @@
 [Unit]
 AssertPathExists=/usr/bin/wifi-setup
+AssertPathExists=/usr/share/wifi-setup/static
 
 [Service]
-WorkingDirectory=~
+WorkingDirectory=/usr/share/wifi-setup
+Environment="ROCKET_ENV=prod"
 ExecStart=/usr/bin/wifi-setup
 Restart=always
 PrivateTmp=true

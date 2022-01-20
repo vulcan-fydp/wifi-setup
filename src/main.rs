@@ -2,22 +2,33 @@
 #![feature(bool_to_option)]
 
 use rocket::request::Form;
-use rocket::response::{status, NamedFile, Redirect};
+use rocket::response::{status, Redirect};
 use rocket_contrib::serve::StaticFiles;
+use rocket_contrib::templates::Template;
+use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-use std::path::Path;
+use std::io::Result;
 use std::process::Command;
 
 #[macro_use]
 extern crate rocket;
 
 #[get("/")]
-fn index() -> Option<NamedFile> {
-    NamedFile::open(Path::new("static/main.html")).ok()
+fn ssids() -> Result<Template> {
+    let scan_out = Command::new("iwlist").arg("wlan0").arg("scan").output()?;
+    let ssids = vec![];
+    let context: HashMap<&str, Vec<&str>> = [("ssids", ssids)].iter().cloned().collect();
+    Ok(Template::render("ssid-list", &context))
 }
 
-fn connect_to_network(ssid: &str, pw: &str) -> std::io::Result<()> {
+#[get("/ssid/<ssid>")]
+fn ssid(ssid: String) -> Template {
+    let context: HashMap<&str, String> = [("ssid", ssid)].iter().cloned().collect();
+    Template::render("ssid", &context)
+}
+
+fn connect_to_network(ssid: &str, pw: &str) -> Result<()> {
     let config = Command::new("wpa_passphrase").arg(ssid).arg(pw).output()?;
     config
         .status
@@ -30,7 +41,7 @@ fn connect_to_network(ssid: &str, pw: &str) -> std::io::Result<()> {
     let mut conf_file = OpenOptions::new()
         .write(true)
         .append(true)
-        .open("/etc/wpa_supplicant/wpa_supplicant-wlan0.conf")?;
+        .open("/etc/wpa_supplicant/wpa_supplicant.conf")?;
     conf_file.write_all(&config.stdout)?;
     Command::new("wpa_cli")
         .arg("-i")
@@ -54,16 +65,19 @@ fn connect(form: Form<WifiConfig>) -> status::Accepted<String> {
 
 #[catch(404)]
 fn redirect() -> Redirect {
-    Redirect::found(uri!(index))
+    Redirect::found(uri!(ssids))
 }
 
 fn main() {
+    let static_dir = match option_env!("WIFI_SETUP_STATIC_DIR") {
+        Some(dir) => dir,
+        None => concat!(env!("CARGO_MANIFEST_DIR"), "/static"),
+    };
+
     rocket::ignite()
+        .attach(Template::fairing())
         .register(catchers![redirect])
-        .mount("/", routes![index, connect])
-        .mount(
-            "/static",
-            StaticFiles::from(concat!(env!("CARGO_MANIFEST_DIR"), "/static")),
-        )
+        .mount("/", routes![ssids, ssid, connect])
+        .mount("/static", StaticFiles::from(static_dir))
         .launch();
 }
