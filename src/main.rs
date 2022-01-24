@@ -11,11 +11,28 @@ use serde::Serialize;
 use std::collections::HashMap;
 use std::fs::OpenOptions;
 use std::io::prelude::*;
-use std::io::Result;
 use std::process::Command;
+use regex::Regex;
+use lazy_static::lazy_static;
+use anyhow::Result;
 
 #[macro_use]
 extern crate rocket;
+
+fn get_ssids() -> Result<Vec<String>> {
+    lazy_static! {
+        static ref SSID_REGEX: Regex = Regex::new("SSID:\"(.+)\"").unwrap();
+    }
+    let mut ssids = vec![];
+    let scan_out = Command::new("iwlist").arg("wlan0").arg("scan").output()?;
+    let text = String::from_utf8(scan_out.stdout)?;
+    for cap in SSID_REGEX.captures_iter(&text) {
+        if let Some(m) = cap.get(1) {
+            ssids.push(m.as_str().to_owned());
+        }
+    }
+    Ok(ssids)
+}
 
 #[derive(Serialize)]
 struct Ssids {
@@ -24,16 +41,14 @@ struct Ssids {
 
 #[get("/scan_ssids")]
 fn scan_ssids() -> Json<Ssids> {
-    let scan_out = Command::new("iwlist").arg("wlan0").arg("scan").output();
-    let ssids = vec!["hi".to_string(), "hi2".to_string(), "hi3".to_string()];
+    let ssids = get_ssids().unwrap_or(vec![]);
     Json(Ssids { ssids })
 }
 
 #[get("/")]
 fn ssids() -> Result<Template> {
-    let scan_out = Command::new("iwlist").arg("wlan0").arg("scan").output()?;
-    let ssids = vec!["hi"];
-    let context: HashMap<&str, Vec<&str>> = [("ssids", ssids)].iter().cloned().collect();
+    let ssids = get_ssids().unwrap_or(vec![]);
+    let context: HashMap<&str, Vec<String>> = [("ssids", ssids)].iter().cloned().collect();
     Ok(Template::render("ssid-list", &context))
 }
 

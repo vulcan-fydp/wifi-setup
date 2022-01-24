@@ -19,7 +19,10 @@ assets = [
 ]
 
 [dependencies]
+anyhow = "1.0.53"
 rocket = "0.4.10"
+regex = "1"
+lazy_static = "1.4.0"
 reqwest = { version = "0.11.9", features = ["blocking"] }
 serde = { version = "1.0.117", features = ["derive"] }
 
